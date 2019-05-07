@@ -47,10 +47,12 @@ def value_to_bit_matrix(a, s=(8, 8)):
     return bit_matrix
 
 def value_to_bit_vector(v, n=8):
+    """ Convert value @p v to bit Vector of size @p n """
     return Vector([(v >> i) & 1 for i in range(n)])
 
 
 def gf_mul_by_cst(v, cst, r, m0=8, m1=8, n=8):
+    """ generate BitMatrix-based multiplication of @p v . @p cst """
     # building bit matrix
     bm = BitMatrix.from_value_list([gf_mul(cst, 1 << i, r, m0, n, n) for i in range(n)])
     print("bm=\n{}".format(str(bm)))
@@ -103,6 +105,7 @@ class BitMatrix:
 
     @staticmethod
     def identity(row_col):
+        """ generate identity matrix of size @p row_col x row_col """
         result = BitMatrix(0, row_col, row_col)
         for i in range(row_col):
             result[i][i] = 1
@@ -110,6 +113,7 @@ class BitMatrix:
 
     @property
     def transpose(self):
+        """ generate the transpose of matrix @p self """
         result = BitMatrix(0, self.col, self.row)
         for i in range(self.row):
             for j in range(self.col):
@@ -127,9 +131,11 @@ class BitMatrix:
         return acc
 
     def vector_row(self, index):
-        return Vector(self.matrix[0])
+        """ return @p index-th row of self matrix """
+        return Vector(self.matrix[index])
 
     def __str__(self):
+        """ Convert matrix to string representation """
         return "\n".join(" ".join("{}".format(self.matrix[i][j]) for j in range(self.col)) for i in range(self.row))
 
 def build_gen_vector(k, elt, red_pol=0x1d, elt_size=8, red_pol_size=8):
@@ -173,7 +179,10 @@ def gf256_dotprod(v0, v1):
     return acc
 
 class Vector:
+    """ Generic vector structure """
     def __init__(self, data=None, n=None):
+        """ Vector init from data list or size @p n
+            if only @p n is set, the vector is filled with 0s """
         if data:
             # data copy
             self.data = [v for v in data]
@@ -185,25 +194,31 @@ class Vector:
             raise NotImplementedError
 
     def __getitem__(self, index):
+        """ Extract an item at index @p index """
         return self.data[index]
 
     def __add__(self, b):
+        """ element-wise addition of 2 vectors """
         assert self.n == b.n
         return Vector([x ^ y for x, y in zip(self.data, b.data)])
 
     @property
     def value(self):
+        """ return the vector aggregated value """
         acc = 0
         for i in range(self.n):
             acc ^= self.data[i] << i
         return acc
 
     def __mul__(self, v):
+        """ Vector by Matrix multiplication """
         if isinstance(v, BitMatrix):
             return (BitMatrix(self.value, 1, self.n) * v).vector_row(0)
+        else:
+            raise NotImplementedError
 
 
-TEST_NUM = 3
+TEST_NUM = 100
 RED_POL = 0x1d # X^8+x^4+X^3+x^2+1
 for t in range(TEST_NUM):
     a = random.randrange(2**8)
@@ -211,3 +226,4 @@ for t in range(TEST_NUM):
     meth0_result = gf_mul(a, b, RED_POL, 8, 8, 8)
     meth1_result = gf_mul_by_cst(a, b, RED_POL, 8, 8, 8)
     print(meth0_result, meth1_result)
+    assert meth0_result == meth1_result
