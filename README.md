@@ -69,3 +69,56 @@ will produce the following output:
 ```
 0x9b
 ```
+
+
+## Bit Matrices
+
+```python
+from utility import BitMatrix
+
+# build a bit-matrix 8x8 full of zeros
+zeros = BitMatrix(0, row=8, col=8)
+
+# build a 8x8 identity matrix
+identity = BitMatrix.identity(8)
+
+# transpose the identity matrix (giving identity ...)
+id_transposed = identity.transpose()
+
+# A numerical value can be used to initalize the bit matrix elements
+# the value is assumed to encode in a row major and little endian layout
+# the matrix
+
+# for example for a 8x8 matrix will the first row full of '1':
+first_full_row = BitMatrix(0xff, row=8, col=8)
+print("first_full_row:\n{}".format(str(first_full_row)))
+
+# for example for a 8x8 matrix will the first column full of '1':
+# each 0x01 encodes a '1' in the first column of a different rows
+# the leftmost 0x01 is the 7-th row (because it is the 7-th byte of
+# the numerical constant)
+first_full_col = BitMatrix(0x0101010101010101, row=8, col=8)
+print("first_full_col:\n{}".format(str(first_full_col)))
+```
+
+```
+first_full_row:
+1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+
+first_full_col:
+1 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0
+```
